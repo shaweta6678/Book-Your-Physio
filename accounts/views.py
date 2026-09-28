@@ -178,7 +178,8 @@ class UserLoginView(APIView):
             return Response({"error": "No account found with this email. Please register first."},status=status.HTTP_404_NOT_FOUND)
 
         # Check password
-        user = authenticate(request,email=email,password=password)
+        # USERNAME_FIELD is "username", so authenticate against the stored username
+        user = authenticate(request,username=user.username,password=password)
 
         if user is None:
             return Response({ "error": "Invalid password or email"},status=status.HTTP_401_UNAUTHORIZED)
