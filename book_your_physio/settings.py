@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     #local apps
     'accounts',
     'physiotherapists',
+    'notifications',
+    'administration',
 
 ]
 
