@@ -1,17 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
-from enum import Enum
-
-class UserRole(Enum):
-    PATIENT = "PATIENT"
-    PHYSIOTHERAPIST = "PHYSIOTHERAPIST"
-    ADMIN = "ADMIN"
-
-class VerificationStatus(Enum):
-    PENDING = "PENDING"
-    VERIFIED = "VERIFIED"
-    REJECTED = "REJECTED"
+from .enums import UserRole, VerificationStatus
 
 
 class User(AbstractUser):
