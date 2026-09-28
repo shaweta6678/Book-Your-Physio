@@ -28,7 +28,8 @@ def validate_registration_data(data):
     validated_data = {
         **required_fields,
         "email": email,
-        "phone_number": data.get("phone_number"),
+        # phone_number is blank=True but not null=True, so default to ""
+        "phone_number": data.get("phone_number") or "",
     }
 
     if role == UserRole.PHYSIOTHERAPIST.value:
