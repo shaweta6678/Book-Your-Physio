@@ -45,3 +45,17 @@ class Physiotherapist(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+class PhysiotherapistVerification(models.Model):
+    # One row per admin review decision; Physiotherapist.verification_status holds the current state
+
+    physiotherapist = models.ForeignKey(Physiotherapist,on_delete=models.CASCADE,related_name="verification_history")
+    status = models.CharField(max_length=20,choices=[(status.value, status.name) for status in VerificationStatus])
+    reviewed_by = models.ForeignKey(User,on_delete=models.SET_NULL,null=True,related_name="physiotherapist_reviews")
+    rejection_reason = models.TextField(blank=True)
+    reviewed_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-reviewed_at", "-id"]
+

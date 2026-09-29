@@ -1,4 +1,7 @@
-from accounts.models import Patient, Physiotherapist, User
+from django.db.models import Q
+
+from accounts.enums import UserRole
+from accounts.models import Patient, Physiotherapist, PhysiotherapistVerification, User
 
 
 class UserDal:
@@ -21,6 +24,15 @@ class UserDal:
             return User.objects.get(email=email)
         except User.DoesNotExist:
             return None
+
+    @staticmethod
+    def list_admins():
+        # createsuperuser leaves role at the PATIENT default, so superusers count as admins too
+        return list(
+            User.objects.filter(is_active=True).filter(
+                Q(role=UserRole.ADMIN.value) | Q(is_superuser=True)
+            )
+        )
 
     @staticmethod
     def update_user(user, **kwargs):
@@ -65,8 +77,53 @@ class PhysiotherapistDal:
             return None
 
     @staticmethod
+    def get_by_id(physiotherapist_id):
+        try:
+            return (
+                Physiotherapist.objects.select_related("user")
+                .prefetch_related("verification_history__reviewed_by")
+                .get(id=physiotherapist_id)
+            )
+        except Physiotherapist.DoesNotExist:
+            return None
+
+    @staticmethod
+    def get_by_id_for_update(physiotherapist_id):
+        # Must be called inside transaction.atomic(); locks the row until commit
+        try:
+            return Physiotherapist.objects.select_for_update().get(id=physiotherapist_id)
+        except Physiotherapist.DoesNotExist:
+            return None
+
+    @staticmethod
+    def list_by_status(verification_status):
+        return list(
+            Physiotherapist.objects.select_related("user")
+            .prefetch_related("verification_history__reviewed_by")
+            .filter(verification_status=verification_status)
+            .order_by("created_at")
+        )
+
+    @staticmethod
     def update_physiotherapist(physiotherapist, **kwargs):
         for field, value in kwargs.items():
             setattr(physiotherapist, field, value)
         physiotherapist.save()
         return physiotherapist
+
+
+class PhysiotherapistVerificationDal:
+    @staticmethod
+    def create_verification(physiotherapist, status, reviewed_by, rejection_reason=""):
+        verification = PhysiotherapistVerification.objects.create(
+            physiotherapist=physiotherapist,
+            status=status,
+            reviewed_by=reviewed_by,
+            rejection_reason=rejection_reason,
+        )
+        return verification
+
+    @staticmethod
+    def get_latest_for_physiotherapist(physiotherapist):
+        # Meta.ordering puts the newest review first
+        return PhysiotherapistVerification.objects.filter(physiotherapist=physiotherapist).first()

@@ -73,6 +73,7 @@ class MyPhysiotherapistProfileTests(APITestCase):
                 "verification_status": VerificationStatus.PENDING.value,
                 "latitude": None,
                 "longitude": None,
+                "rejection_reason": "",
             },
         )
 

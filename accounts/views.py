@@ -12,6 +12,7 @@ from accounts.validators import validate_registration_data
 from .enums import UserRole
 from .models import Patient, Physiotherapist
 from accounts.dal.account_dal import UserDal, PatientDal, PhysiotherapistDal
+from notifications.services import AdminNotificationService
 
 User = get_user_model()
 
@@ -132,10 +133,13 @@ class UserRegistrationView(APIView):
 
             elif role == UserRole.PHYSIOTHERAPIST.value:
 
-                PhysiotherapistDal.create_physiotherapist(user=user, 
-                                                          license_number=license_number, 
-                                                          bio=bio or "", experience_years=experience_years, 
+                physiotherapist = PhysiotherapistDal.create_physiotherapist(user=user,
+                                                          license_number=license_number,
+                                                          bio=bio or "", experience_years=experience_years,
                                                           consultation_fee=consultation_fee)
+
+                # Same transaction: the admin notification exists if and only if the registration does
+                AdminNotificationService().physiotherapist_registered(physiotherapist)
 
         # -----------------------------------------
         # Success response
