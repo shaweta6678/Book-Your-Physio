@@ -40,6 +40,7 @@ class UserDal:
             setattr(user, field, value)
         user.save()
         return user
+    
 
 
 class PatientDal:

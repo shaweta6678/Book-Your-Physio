@@ -139,7 +139,7 @@ class UserRegistrationView(APIView):
                                                           consultation_fee=consultation_fee)
 
                 # Same transaction: the admin notification exists if and only if the registration does
-                AdminNotificationService().physiotherapist_registered(physiotherapist)
+                # AdminNotificationService().physiotherapist_registered(physiotherapist)
 
         # -----------------------------------------
         # Success response
@@ -225,3 +225,5 @@ class UserLogoutView(APIView):
 
         except Exception:
             return Response({"error": "Invalid or expired refresh token."},status=status.HTTP_400_BAD_REQUEST)
+
+
