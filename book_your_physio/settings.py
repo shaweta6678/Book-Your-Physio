@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     #third party apps
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+    "corsheaders",
+
     #local apps
     'accounts',
     'physiotherapists',
@@ -53,6 +55,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",   # must be at the top, before CommonMiddleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'book_your_physio.urls'
@@ -148,3 +152,9 @@ REST_FRAMEWORK = {
     ),
     
 }
+
+#cors settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
