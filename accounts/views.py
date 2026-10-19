@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
+from accounts.permissions import IsPatient
 from accounts.validators import validate_registration_data
 
 from .enums import UserRole
@@ -227,3 +228,30 @@ class UserLogoutView(APIView):
             return Response({"error": "Invalid or expired refresh token."},status=status.HTTP_400_BAD_REQUEST)
 
 
+class PatientProfileView(APIView):
+    permission_classes = [IsPatient]
+
+    def get(self, request):
+        patient = PatientDal.get_patient_by_user(request.user)
+        if patient is None:
+            return Response({"error": "Patient profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        user = request.user
+        return Response(
+            {
+                "id": patient.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "phone_number": user.phone_number,
+                "date_of_birth": patient.date_of_birth.isoformat() if patient.date_of_birth else None,
+                "gender": patient.gender,
+                "address": patient.address,
+                "city": patient.city,
+                "state": patient.state,
+                "pincode": patient.pincode,
+                "emergency_contact_name": patient.emergency_contact_name,
+                "emergency_contact_phone": patient.emergency_contact_phone,
+            },
+            status=status.HTTP_200_OK,
+        )
